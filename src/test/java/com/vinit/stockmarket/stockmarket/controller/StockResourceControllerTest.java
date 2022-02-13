@@ -1,39 +1,102 @@
 package com.vinit.stockmarket.stockmarket.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.ResponseEntity;
 
-@WebMvcTest(StockResourceController.class)
+import com.vinit.stockmarket.stockmarket.model.Stock;
+
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class StockResourceControllerTest {
-	
+
 	@Autowired
-	private MockMvc mockMvc;
-	
+	private TestRestTemplate restTemplate;
+
 	@Test
-	public void helloWorld_basic() throws Exception {
-		//call GET "/hello-world"  application/json
+	public void checkValid200ResponseFromPutapistock() throws JSONException {
+
+		final String url = "/PATCH/api/stocks/3";
+
+		Stock stock = new Stock();
+
+		stock.setName("Oracle");
+		stock.setCurrentprice(new BigDecimal(44.34));
+		stock.setLastupdate(new Timestamp(System.currentTimeMillis()));
+		restTemplate.put(url, stock);
+
+		Stock updatedUser = restTemplate.getForObject("/GET/api/stocks/3", Stock.class);
+		System.out.println("User updated details : ");
+
 		
-		RequestBuilder request = MockMvcRequestBuilders
-				.get("/hello-world")
-				.accept(MediaType.APPLICATION_JSON);
-		
-		MvcResult result = mockMvc.perform(request)
-				.andExpect(status().isOk())
-				.andExpect(content().string("Hello World"))
-				.andReturn();
-	
-		//verify "Hello World"
-		assertEquals("Hello World", result.getResponse().getContentAsString());
+		JSONAssert.assertEquals("44.3400", String.valueOf(updatedUser.getCurrentprice()), false);
+	}
+
+	@Test
+	public void checkValid200ResponseFromGETapistocks() throws JSONException {
+
+		ResponseEntity<String> response = this.restTemplate.getForEntity("/GET/api/stocks", String.class);
+		JSONAssert.assertEquals(String.valueOf(200), String.valueOf(response.getStatusCodeValue()), false);
+
+	}
+
+	@Test
+	public void checkValid200ResponseFromGETapistockbyid() throws JSONException {
+
+		ResponseEntity<String> response = this.restTemplate.getForEntity("/GET/api/stocks/1", String.class);
+		JSONAssert.assertEquals(String.valueOf(200), String.valueOf(response.getStatusCodeValue()), false);
+
+	}
+
+	@Test
+	public void checkValid200ResponseFromGETapistockbyidNotFound() throws JSONException {
+
+		ResponseEntity<String> response = this.restTemplate.getForEntity("/GET/api/stocks/5", String.class);
+		JSONAssert.assertEquals(String.valueOf(404), String.valueOf(response.getStatusCodeValue()), false);
+
+	}
+
+	@Test
+	public void checkValid200ResponseFromGETapistockbyidNot() throws JSONException {
+
+		ResponseEntity<String> response = this.restTemplate.getForEntity("/GET/api/stockss/1", String.class);
+		JSONAssert.assertEquals(String.valueOf(404), String.valueOf(response.getStatusCodeValue()), false);
+
+	}
+
+	@Test
+	public void checkValid200ResponseFromDeleteapistock() throws JSONException {
+
+		this.restTemplate.delete("/DELETE/api/stocks/1", String.class);
+
+		ResponseEntity<String> response = this.restTemplate.getForEntity("/GET/api/stockss/1", String.class);
+		JSONAssert.assertEquals(String.valueOf(404), String.valueOf(response.getStatusCodeValue()), false);
+
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void checkValid200ResponseFromPOSTapistock() throws JSONException {
+
+		final String url = "/POST/api/stocks";
+
+		Stock stock = new Stock();
+		stock.setId(new Long(4));
+		stock.setName("Tesla");
+		stock.setCurrentprice(new BigDecimal(44.34));
+		stock.setLastupdate(new Timestamp(System.currentTimeMillis()));
+
+		ResponseEntity<Stock> response = restTemplate.postForEntity(url, stock, Stock.class);
+
+		JSONAssert.assertEquals(String.valueOf(201), String.valueOf(response.getStatusCodeValue()), false);
+
 	}
 
 }

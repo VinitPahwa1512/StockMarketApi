@@ -33,14 +33,9 @@ import io.swagger.v3.oas.annotations.Operation;
 @RestController
 public class StockResourceController {
 
-	@GetMapping(path = "/hello-world")
-	public String helloWorld() {
-		return "Hello World";
-	}
-
 	@Autowired
 	private StockJpaRepository stockJpaRepository;
-	 
+
 	@Operation(summary = "Get all Stock Information")
 	@GetMapping("/GET/api/stocks")
 	public ResponseEntity<Map<String, Object>> getAllStocks(
@@ -51,15 +46,6 @@ public class StockResourceController {
 		try {
 			List<Stock> orders = new ArrayList<Stock>();
 
-			/*
-			 * if (sort[0].contains(",")) { // will sort more than 2 fields //
-			 * sortOrder="field, direction" for (String sortOrder : sort) { String[] _sort =
-			 * sortOrder.split(","); orders.add(new Order(getSortDirection(_sort[1]),
-			 * _sort[0])); } } else { // sort=[field, direction] orders.add(new
-			 * Order(getSortDirection(sort[1]), sort[0])); }
-			 */
-
-			List<Stock> tutorials = new ArrayList<Stock>();
 			Pageable pagingSort = PageRequest.of(page, size);
 
 			Page<Stock> pageTuts;
@@ -68,10 +54,10 @@ public class StockResourceController {
 			// else
 			// pageTuts = tutorialRepository.findByTitleContaining(title, pagingSort);
 
-			tutorials = pageTuts.getContent();
+			orders = pageTuts.getContent();
 
 			Map<String, Object> response = new HashMap<>();
-			response.put("tutorials", tutorials);
+			response.put("Stocks", orders);
 			response.put("currentPage", pageTuts.getNumber());
 			response.put("totalItems", pageTuts.getTotalElements());
 			response.put("totalPages", pageTuts.getTotalPages());
@@ -94,16 +80,10 @@ public class StockResourceController {
 		}
 	}
 
-	/*
-	 * @GetMapping("/GET/api/stocks/{id}") public Stock getStockById(@PathVariable
-	 * long id){ return stockJpaRepository.findById((int) id).get(); //return
-	 * todoService.findById(id); }
-	 */
-
 	// DELETE /users/{username}/todos/{id}
 	@Operation(summary = "Delete Stock Information By Id")
 	@DeleteMapping("/DELETE/api/stocks/{id}")
-	public ResponseEntity<HttpStatus> deleteTutorial(@PathVariable("id") long id) {
+	public ResponseEntity<HttpStatus> deleteStock(@PathVariable("id") long id) {
 		try {
 			stockJpaRepository.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -117,25 +97,21 @@ public class StockResourceController {
 	@Operation(summary = "Updating the Stock Information")
 	@PutMapping("/PATCH/api/stocks/{id}")
 	public ResponseEntity<Stock> updateStock(@PathVariable long id, @RequestBody Stock stock) {
-		
-		Optional<Stock> existingStock = stockJpaRepository.findById(id);
-		
-		
-		
 
-        if (!existingStock.isPresent()) {
-            throw new StockNotFoundException("Stock [id: " + id + "] not found.");
-        }
-        
-        if(!((existingStock.get().getName()!=null && stock.getName()!=null) && (existingStock.get().getName().equalsIgnoreCase(stock.getName()))))
-        {
-        	  throw new StockNotFoundException("Stock [Name: " + existingStock.get().getName() + "] not is mismatched.");
-        }
+		Optional<Stock> existingStock = stockJpaRepository.findById(id);
+
+		if (!existingStock.isPresent()) {
+			throw new StockNotFoundException("Stock [id: " + id + "] not found.");
+		}
+
+		if (!((existingStock.get().getName() != null && stock.getName() != null)
+				&& (existingStock.get().getName().equalsIgnoreCase(stock.getName())))) {
+			throw new StockNotFoundException("Stock [Name: " + existingStock.get().getName() + "] not is mismatched.");
+		}
 
 		stock.setId(id);
-		
-		if(stock.getLastupdate()==null)
-		{
+
+		if (stock.getLastupdate() == null) {
 			stock.setLastupdate(new Timestamp(System.currentTimeMillis()));
 		}
 
@@ -148,13 +124,8 @@ public class StockResourceController {
 	@PostMapping("/POST/api/stocks")
 	public ResponseEntity<Void> createStock(@RequestBody Stock stock) {
 
-		// stock.setUsername(username);
-
 		Stock createdTodo = stockJpaRepository.save(stock);
 
-		// Location
-		// Get current resource url
-		/// {id}
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdTodo.getId())
 				.toUri();
 

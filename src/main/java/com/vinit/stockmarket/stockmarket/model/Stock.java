@@ -2,7 +2,6 @@ package com.vinit.stockmarket.stockmarket.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,7 +36,7 @@ public class Stock {
 		this.currentprice = currentprice;
 	}
 
-	public Date getLastupdate() {
+	public Timestamp getLastupdate() {
 		return lastupdate;
 	}
 
