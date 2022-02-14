@@ -11,12 +11,12 @@ GET /api/stocks/1 (get one stock from the list)
 PATCH /api/stocks/1 (update the price of a single stock) 
 DELETE/api/stocks/1 (delete a single stock)
 
-1.	POST /api/stocks (create a stock) 
+1.	POST /api/stocks (create a stock) : This api is for creating a new stock with price.
 
 
  
 
-2.	http://localhost:8080/GET/api/stocks
+2.	http://localhost:8080/GET/api/stocks : This api will fetch all the stocks with paging and size.
 
  
 
@@ -45,20 +45,20 @@ DELETE/api/stocks/1 (delete a single stock)
     "totalPages": 2,
     "currentPage": 0
 }
-3.	http://localhost:8080/GET/api/stocks/3
+3.	http://localhost:8080/GET/api/stocks/3 : This api will fetch particular stock information for given stock id.
 
  
 
-4.	http://localhost:8080/PATCH/api/stocks/3
+4.	http://localhost:8080/PATCH/api/stocks/3 : This api will update the price details of a particular stock id.
 
  
  
 
-5.	DELETE/api/stocks/1 (delete a single stock)
+5.	DELETE/api/stocks/1 (delete a single stock) : This will Delete the particular stock information.
 
  
 
-6.	Paging : http://localhost:8080/GET/api/stocks?page=0
+6.	Paging : http://localhost:8080/GET/api/stocks?page=0 : This is with paging.
 
  
 7.	Paging and Size
@@ -81,19 +81,16 @@ DELETE/api/stocks/1 (delete a single stock)
 
 Generate the jar:
 
- 
-
-Or 
-
 Run mvn clean package
 
 
 Docker Commands:
 Run
-docker build --tag=stockmarketapp:latest .
+
+docker build --tag=stockmarketapp:latest .  : This is to create docker image once the jar is generated.
  
 
- 
+docker run -p 8080:8080 stockmarketapp:latest : this is to launch the apis.
 
 
 
